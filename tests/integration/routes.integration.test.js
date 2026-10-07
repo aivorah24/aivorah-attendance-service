@@ -90,15 +90,23 @@ describe('GET /classes/mine', () => {
   test('a teacher with no school gets an empty list', async () => {
     expect((await request(app).get('/classes/mine').set(as('noschool'))).body).toEqual({ classes: [] });
   });
-  test("parent: their children's classes, once each", async () => {
+  test("parent: one homeroom card per linked child (not deduped by class — MyClassesScreen shows one card per child)", async () => {
     store.childrenOf.mockResolvedValueOnce([
-      { grade: 'Grade 5', section: 'E2E-ATT', school_id: 's1' }, { grade: 'Grade 5', section: 'E2E-ATT', school_id: 's1' }, { grade: 'Grade 2', section: 'A', school_id: 'other' },
+      { id: 'c1', name: 'Kid One', grade: 'Grade 5', section: 'E2E-ATT', school_id: 's1' },
+      { id: 'c2', name: 'Kid Two', grade: 'Grade 5', section: 'E2E-ATT', school_id: 's1' },
+      { id: 'c3', name: 'Elsewhere', grade: 'Grade 2', section: 'A', school_id: 'other' },
     ]);
     const res = await request(app).get('/classes/mine').set(as('parent'));
-    expect(res.body.classes).toEqual([{ grade: 'Grade 5', section: 'E2E-ATT', label: 'Grade 5 E2E-ATT' }]);
+    expect(res.body.classes).toEqual([
+      expect.objectContaining({ grade: 'Grade 5', section: 'E2E-ATT', code: 'Grade 5E2E-ATT', studentId: 'c1', studentName: 'Kid One' }),
+      expect.objectContaining({ grade: 'Grade 5', section: 'E2E-ATT', code: 'Grade 5E2E-ATT', studentId: 'c2', studentName: 'Kid Two' }),
+    ]);
   });
-  test('student: own class', async () => {
-    expect((await request(app).get('/classes/mine').set(as('kid'))).body.classes).toEqual([{ grade: 'Grade 5', section: 'E2E-ATT', label: 'Grade 5 E2E-ATT' }]);
+  test('student: own class, as a full homeroom card (classTeacherEmail, code, studentCount)', async () => {
+    const classes = (await request(app).get('/classes/mine').set(as('kid'))).body.classes;
+    expect(classes).toEqual([
+      expect.objectContaining({ grade: 'Grade 5', section: 'E2E-ATT', label: 'Grade 5 Homeroom', code: 'Grade 5E2E-ATT', classTeacherEmail: 'att@s1.org', studentCount: 2 }),
+    ]);
   });
 });
 
