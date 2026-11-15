@@ -51,4 +51,13 @@ ATTENDANCE_API_TESTS=1 ATTENDANCE_API_ENV=<env file with the Dev Supabase> npx j
 The API tests refuse to run unless `SUPABASE_URL` is the Dev project; they seed
 and delete their own school and users.
 
-Environment: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `FIREBASE_SERVICE_ACCOUNT_B64`.
+Environment: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `FIREBASE_SERVICE_ACCOUNT_B64`,
+`WORLD_AND_YOU_SERVICE_URL`.
+
+## Current Affairs (forwarded)
+
+Current Affairs lives in aivorah-world-and-you-service (source of truth).
+Old app versions still call `/current-affairs/*` here; `routes/currentAffairsProxy.js`
+forwards those calls to `WORLD_AND_YOU_SERVICE_URL` (default `http://localhost:3010`)
+unchanged — method, path, query, body and `Authorization` — with no redirect.
+On Render set `WORLD_AND_YOU_SERVICE_URL=https://aivorah-world-and-you-service.onrender.com`.

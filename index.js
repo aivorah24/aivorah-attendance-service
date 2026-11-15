@@ -5,6 +5,14 @@ const { requireUser } = require('./middleware/auth');
 
 const app = express();
 app.use(cors());
+
+// Current Affairs lives in aivorah-world-and-you-service. Old app versions
+// still call /current-affairs here: forwarded there unchanged (no redirect).
+// Mounted before the JSON parser so the body is forwarded byte for byte.
+// Not behind requireUser: the digest is public, and world-and-you checks the
+// student's Firebase token itself.
+app.use('/current-affairs', require('./routes/currentAffairsProxy').currentAffairsProxy());
+
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'aivorah-attendance-service' }));
@@ -12,13 +20,6 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'aivorah-att
 app.use('/classes', requireUser, require('./routes/classes'));
 app.use('/attendance', requireUser, require('./routes/attendance'));
 app.use('/reports', requireUser, require('./routes/reports'));
-
-// Current Affairs (daily news digest + weekly quiz for students). The source
-// of truth is now aivorah-world-and-you-service (/current-affairs there);
-// this copy stays only until old app versions are forwarded to it.
-// Not behind requireUser: the digest is public; per-student routes check the
-// Firebase token themselves (current-affairs/middleware/auth.js).
-app.use('/current-affairs', require('./current-affairs/routes'));
 
 const PORT = process.env.PORT || 3022;
 if (require.main === module) {
