@@ -13,9 +13,9 @@ app.use('/classes', requireUser, require('./routes/classes'));
 app.use('/attendance', requireUser, require('./routes/attendance'));
 app.use('/reports', requireUser, require('./routes/reports'));
 
-// Current Affairs (daily news digest + weekly quiz for students). Hosted here
-// until it has its own Render service; source of truth, schema and content
-// pipeline: github.com/aivorah24/aivorah-current-affairs-service.
+// Current Affairs (daily news digest + weekly quiz for students). The source
+// of truth is now aivorah-world-and-you-service (/current-affairs there);
+// this copy stays only until old app versions are forwarded to it.
 // Not behind requireUser: the digest is public; per-student routes check the
 // Firebase token themselves (current-affairs/middleware/auth.js).
 app.use('/current-affairs', require('./current-affairs/routes'));
