@@ -11,6 +11,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'aivorah-att
 
 app.use('/classes', requireUser, require('./routes/classes'));
 app.use('/attendance', requireUser, require('./routes/attendance'));
+app.use('/reports', requireUser, require('./routes/reports'));
 
 // Current Affairs (daily news digest + weekly quiz for students). Hosted here
 // until it has its own Render service; source of truth, schema and content
